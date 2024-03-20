@@ -1,5 +1,5 @@
 import streamlit as st
-from llm_helper import process_pdf, retrieve_data
+from llm_helper import process_pdf, retrieve_and_chat
 
 def main():
     st.title("PDF Chat")
@@ -7,7 +7,9 @@ def main():
 
     # Set Session State
     if 'vector_db' not in st.session_state:
-        st.session_state['vector_db'] = None
+        st.session_state.vector_db = None
+    if 'chat' not in st.session_state:
+        st.session_state.chat = None
     
     with st.sidebar:
         my_pdf = st.file_uploader(
@@ -31,8 +33,10 @@ def main():
         user_query = st.text_input("Submit a query:")
         submit_query = st.form_submit_button("Query")
         if submit_query:
-            response = retrieve_data(st.session_state['vector_db'],user_query)
-            st.write(response)
+            chat = retrieve_and_chat(st.session_state['vector_db'])
+            st.session_state.chat = chat
+            with st.chat_message("assistant"):
+                st.session_state.chat({"question": user_query})
 
 
 if __name__ == "__main__":

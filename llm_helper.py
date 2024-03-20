@@ -1,7 +1,9 @@
 from pypdf import PdfReader
 from langchain_text_splitters import CharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -31,8 +33,17 @@ def process_pdf(pdf):
     db = FAISS.from_texts(chunks, embeddings)
     return db
 
-def retrieve_data(db, query):
-    # retriever = db.as_retriever()
-    # response = retriever.get_relevant_documents(query)
-    response = db.similarity_search(query)
-    return response[0].page_content
+def retrieve_and_chat(db):
+    llm = ChatOpenAI()
+    retriever = db.as_retriever()
+    memory = ConversationBufferMemory(
+        memory_key='chat_history',
+        return_messages=True,
+    )
+    conversation = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        memory=memory,
+        retriever=retriever,
+        verbose=True,
+    )
+    return conversation
