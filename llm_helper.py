@@ -31,9 +31,8 @@ def process_pdf(pdf):
 
     # Store
     db = FAISS.from_texts(chunks, embeddings)
-    return db
 
-def retrieve_and_chat(db):
+    # Retrieve
     llm = ChatOpenAI()
     retriever = db.as_retriever()
     memory = ConversationBufferMemory(
