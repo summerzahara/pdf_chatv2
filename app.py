@@ -1,5 +1,5 @@
 import streamlit as st
-from llm_helper import process_pdf, retrieve_from_db
+from llm_helper import process_pdf
 
 def generate_response(query):
         response = st.session_state.chat({"question": query})
